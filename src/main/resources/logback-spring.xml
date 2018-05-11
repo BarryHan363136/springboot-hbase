@@ -2,8 +2,6 @@
 <configuration>
     <property scope="context" name="SUB_SYSTEM" value="springboot_hbase" />
 
-    <if condition='isDefined("catalina.base")'>
-        <then>
             <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
                 <file>${catalina.base}/logs/kafka_producer.log</file>
                 <append>true</append>
@@ -19,8 +17,6 @@
                     <charset>UTF-8</charset>
                 </encoder>
             </appender>
-        </then>
-    </if>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
