@@ -37,16 +37,16 @@
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.22</slf4j.version>
         <quartz.version>2.3.0</quartz.version>
-        <javax.mail.version>1.6.0</javax.mail.version>
         <spring-boot-starter-redis.version>1.4.7.RELEASE</spring-boot-starter-redis.version>
         <jedis.version>2.9.0</jedis.version>
-        <rocketmq.version>4.1.0-incubating</rocketmq.version>
         <spring-kafka.version>2.1.5.RELEASE</spring-kafka.version>
         <webmagic.version>0.7.3</webmagic.version>
-        <jsoup.version>1.10.3</jsoup.version>
-        <shiro.version>1.2.5</shiro.version>
         <fastjson.version>1.2.38</fastjson.version>
         <janino.version>3.0.8</janino.version>
+        <hbase.version>2.0.0</hbase.version>
+        <hadoop-client.version>3.1.0</hadoop-client.version>
+        <protobuf-java.version>3.5.1</protobuf-java.version>
+        <zookeeper.version>3.5.4-beta</zookeeper.version>
     </properties>
 
     <dependencies>
@@ -171,18 +171,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.quartz-scheduler</groupId>-->
-        <!--<artifactId>quartz</artifactId>-->
-        <!--<version>2.2.3</version>-->
-        <!--</dependency>-->
-
-        <!-- email -->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>${javax.mail.version}</version>
-        </dependency>
 
         <!-- json -->
         <dependency>
@@ -215,45 +203,73 @@
             <version>${spring-kafka.version}</version>
         </dependency>
 
-        <!-- RocketMq客户端相关依赖 -->
+        <!--hadoop/hbase都要依赖(RPC通信)-->
+        <!--<dependency>-->
+            <!--<groupId>com.google.protobuf</groupId>-->
+            <!--<artifactId>protobuf-java</artifactId>-->
+            <!--<version>${protobuf-java.version}</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-client</artifactId>
-            <version>${rocketmq.version}</version>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-common</artifactId>
-            <version>${rocketmq.version}</version>
-        </dependency>
-
-        <!-- jsoup html parse -->
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-        </dependency>
-
-        <!-- shiro -->
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-            <version>${shiro.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-web</artifactId>
-            <version>${shiro.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-ehcache</artifactId>
-            <version>${shiro.version}</version>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-            <version>${shiro.version}</version>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-protocol</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-common</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
