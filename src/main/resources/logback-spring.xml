@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property scope="context" name="SUB_SYSTEM" value="springboot_hbase" />
-    <property scope="context" name="LOGFILE_PATH" value="C:\workspaces\logs\springboot_base" />
+    <property scope="context" name="LOGFILE_PATH" value="C:/workspaces/logs/springboot_base" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGFILE_PATH}/springboot_hbase.log</file>
