@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property scope="context" name="SUB_SYSTEM" value="springboot_hbase" />
+    <property scope="context" name="LOGFILE_PATH" value="C:\workspaces\logs\springboot_base" />
 
-            <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>${catalina.base}/logs/kafka_producer.log</file>
-                <append>true</append>
-                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                    <FileNamePattern>${catalina.base}/logs/springboot_hbase.%d{yyyy-MM-dd}-%i.log.zip</FileNamePattern>
-                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                        <maxFileSize>100MB</maxFileSize>
-                    </timeBasedFileNamingAndTriggeringPolicy>
-                    <maxHistory>7</maxHistory>
-                </rollingPolicy>
-                <encoder>
-                    <pattern>%d{HH:mm:ss.SSS} {%t} %-5level [springboot_hbase] %logger - %msg%n</pattern>
-                    <charset>UTF-8</charset>
-                </encoder>
-            </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGFILE_PATH}/springboot_hbase.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOGFILE_PATH}/springboot_hbase.%d{yyyy-MM-dd}-%i.log.zip</FileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} {%t} %-5level [springboot_hbase] %logger - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
