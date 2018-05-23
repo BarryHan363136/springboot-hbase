@@ -37,7 +37,7 @@ public class StaffController extends BaseController {
      * @Date: 2018/3/22
      */
     @PostMapping("/save")
-    public ResultData save(Staff staff){
+    public ResultData save(@RequestBody Staff staff){
         try {
             staffService.save(staff);
             return setResponseEntity(ResultType.SUCCESS.getDescription(), ResultType.SUCCESS.getCode(),null,true);
@@ -49,7 +49,6 @@ public class StaffController extends BaseController {
 
     /**
      * @Descripton: 根据id查询
-     * @Author: Sorin
      * @param id
      * @Date: 2018/3/22
      */

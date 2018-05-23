@@ -177,6 +177,7 @@ public class HBaseDaoUtil {
         List<Put> puts = new ArrayList<Put>();
         String tableName = "";
         try (Admin admin = HconnectionFactory.connection.getAdmin();){
+            boolean status = admin.isTableAvailable(TableName.valueOf("t_staff"));
             for (Object obj : objs) {
                 if (obj == null) {
                     continue;
@@ -207,7 +208,7 @@ public class HBaseDaoUtil {
                 puts.add(put);
             }
         }catch (Exception e){
-            logger.error("保存Hbase异常！");
+            logger.error("保存Hbase异常！", e);
         }
         return savePut(puts, tableName);
     }

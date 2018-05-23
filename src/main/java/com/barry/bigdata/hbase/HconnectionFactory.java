@@ -38,13 +38,27 @@ public class HconnectionFactory implements InitializingBean {
 
     public static Connection connection;
 
+    /**
+     * @Bean
+     *    public HbaseTemplate hbaseTemplate(@Value("${hbase.zookeeper.quorum}") String quorum,
+     *                                       @Value("${hbase.zookeeper.port}") String port) {
+     *        HbaseTemplate hbaseTemplate = new HbaseTemplate();
+     *        org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
+     *        conf.set("hbase.zookeeper.quorum", quorum);
+     *        conf.set("hbase.zookeeper.port", port);
+     *        hbaseTemplate.setConfiguration(conf);
+     *        hbaseTemplate.setAutoFlush(true);
+     *        return hbaseTemplate;
+     *    }
+     * */
+
     @Override
     public void afterPropertiesSet(){
         try {
             conf.set("hbase.zookeeper.quorum", zkQuorum);
-            conf.set("hbase.zookeeper.property.clientPort", zkPort);
-            conf.set("zookeeper.znode.parent", znode);
-            conf.set("hbase.master", hBaseMaster);
+            conf.set("hbase.zookeeper.port", zkPort);
+            //conf.set("zookeeper.znode.parent", znode);
+            //conf.set("hbase.master", hBaseMaster);
             connection = ConnectionFactory.createConnection(conf);
             logger.info("获取connectiont连接成功!");
         } catch (IOException e) {
