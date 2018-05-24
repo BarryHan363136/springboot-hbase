@@ -149,45 +149,59 @@ public class StaffServiceTest extends BaseTest {
     }
 
     /**
-     * 新增数据
+     * 新增数据,此种方式不是最好的,尽量使用testPutData2的方式
      */
     @Test
     public void testPutData() throws IOException {
-        Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", "192.168.33.128");
-        conf.set("hbase.zookeeper.port", "2181");
-        conf.set("zookeeper.znode.parent", "/hbase");
-        conf.set("hbase.master", "192.168.33.128");
-        Connection connection = ConnectionFactory.createConnection(conf);
-        Table table = connection.getTable(TableName.valueOf("t_staff"));
-        Admin admin = connection.getAdmin();
+        Table table = null;
+        try {
+            Configuration conf = HBaseConfiguration.create();
+            conf.set("hbase.zookeeper.quorum", "192.168.33.128");
+            conf.set("hbase.zookeeper.port", "2181");
+            conf.set("zookeeper.znode.parent", "/hbase");
+            conf.set("hbase.master", "192.168.33.128");
+            Connection connection = ConnectionFactory.createConnection(conf);
+            table = connection.getTable(TableName.valueOf("t_staff"));
+            Admin admin = connection.getAdmin();
 
-        Put put = new Put(Bytes.toBytes("0002"));
-        put.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0002"));
-        put.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0002"));
-        table.put(put);
-        logger.info("======================>新增数据完成...");
+            Put put = new Put(Bytes.toBytes("0002"));
+            put.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0002"));
+            put.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0002"));
+            table.put(put);
+            logger.info("======================>新增数据完成...");
+        } catch (IOException e) {
+            logger.error("testPutData2 exception {} ", e);
+        }finally {
+            if (table!=null){
+                table.close();
+            }
+        }
     }
 
     /**
-     * 新增数据
+     * 新增数据,较好的操作方式
      */
     @Test
     public void testPutData2() throws IOException {
+        HTable htable = null;
         try {
             String tableName = "t_staff";
 
             Configuration config = HBaseConfiguration.create();
             config.set("hbase.zookeeper.quorum", "192.168.33.128");
             config.set("hbase.zookeeper.port", "2181");
-            HTable table = new HTable(config, tableName);
+            htable = new HTable(config, tableName);
             Put put = new Put(Bytes.toBytes("0003"));
             put.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0003"));
             put.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0003"));
-            table.put(put);
+            htable.put(put);
             logger.info("======================>新增数据完成...");
         } catch (IOException e) {
-            logger.error("testPutData exception {} ", e);
+            logger.error("testPutData2 exception {} ", e);
+        }finally {
+            if (htable!=null){
+                htable.close();
+            }
         }
     }
 
