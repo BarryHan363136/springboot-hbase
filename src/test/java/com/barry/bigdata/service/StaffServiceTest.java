@@ -10,14 +10,14 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.hadoop.hbase.HbaseTemplate;
+import org.springframework.data.hadoop.hbase.TableCallback;
 
 import java.io.IOException;
 
@@ -138,6 +138,42 @@ public class StaffServiceTest extends BaseTest {
         }
     }
 
+    /**
+     * hbaseTemplate工具类,执行查询、修改、新增、删除
+     */
+    @Test
+    public void testCreateTable4(){
+        HbaseTemplate hbaseTemplate = new HbaseTemplate();
+        org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "192.168.33.128");
+        conf.set("hbase.zookeeper.port", "2181");
+        hbaseTemplate.setConfiguration(conf);
+        hbaseTemplate.setAutoFlush(true);
+    }
+
+    /**
+     * 新增数据
+     */
+    @Test
+    public void testPutData() throws IOException {
+        Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "192.168.33.128");
+        conf.set("hbase.zookeeper.port", "2181");
+        conf.set("zookeeper.znode.parent", "/hbase");
+        conf.set("hbase.master", "192.168.33.128");
+        HBaseConfiguration cfg = new HBaseConfiguration(conf);
+        HTable hTable = new HTable(cfg, "s_staff");
+        Put p = new Put(Bytes.toBytes("0002"));
+        //byte[] family, byte[] qualifier, byte[] value
+        p.addColumn("staff".getBytes(), "content".getBytes(), "content-0002".getBytes());
+        p.addColumn("staff".getBytes(), "avg".getBytes(), "avg-0002".getBytes());
+        //p.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0002"));
+        //p.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0002"));
+        hTable.put(p);
+        logger.info("======================>新增数据完成...");
+        // closing HTable
+        hTable.close();
+    }
 
 
 }
