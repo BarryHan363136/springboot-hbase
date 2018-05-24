@@ -2,6 +2,8 @@ package com.barry.bigdata.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
@@ -57,8 +59,8 @@ public class HconnectionFactory implements InitializingBean {
         try {
             conf.set("hbase.zookeeper.quorum", zkQuorum);
             conf.set("hbase.zookeeper.port", zkPort);
-            //conf.set("zookeeper.znode.parent", znode);
-            //conf.set("hbase.master", hBaseMaster);
+            conf.set("zookeeper.znode.parent", znode);
+            conf.set("hbase.master", hBaseMaster);
             connection = ConnectionFactory.createConnection(conf);
             logger.info("获取connectiont连接成功!");
         } catch (IOException e) {

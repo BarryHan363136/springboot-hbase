@@ -169,22 +169,22 @@ public class HBaseDaoUtil {
 
     /**
      * @Descripton: 保存实体对象
-     * @Author: Sorin
+     * 表不存在则创建表,create 't_staff','rowkey','staff'
      * @param objs
      * @Date: 2018/3/22
      */
     public <T> boolean save(T ... objs) {
         List<Put> puts = new ArrayList<Put>();
         String tableName = "";
-        try (Admin admin = HconnectionFactory.connection.getAdmin();){
-            boolean status = admin.isTableAvailable(TableName.valueOf("t_staff"));
+        try{
+            Admin admin = HconnectionFactory.connection.getAdmin();
             for (Object obj : objs) {
                 if (obj == null) {
                     continue;
                 }
                 tableName = getORMTable(obj);
-                // 表不存在，先获取family创建表
-                if(!admin.isTableAvailable(TableName.valueOf(tableName))){
+                boolean status = admin.isTableAvailable(TableName.valueOf(tableName));
+                if(!status){
                     // 获取family, 创建表
                     Class<?> clazz = obj.getClass();
                     Field[] fields = clazz.getDeclaredFields();
