@@ -43,9 +43,13 @@
         <webmagic.version>0.7.3</webmagic.version>
         <fastjson.version>1.2.38</fastjson.version>
         <janino.version>3.0.8</janino.version>
-        <!--此版本程序会执行报错<hbase.version>2.0.0</hbase.version>-->
-        <!--此版本可正常执行<hbase.version>1.2.6</hbase.version>-->
-        <hbase.version>1.4.4</hbase.version>
+        <!--
+            hbase version desc
+            hbase.version:2.0.0,此版本程序执行表(创建表/判断表是否存在)操作报错
+            hbase.version:1.4.4,此版本程序执行表数据更新(新增/修改/删除)报错
+            hbase.version:1.2.6,此版本可正常执行
+         -->
+        <hbase.version>1.2.6</hbase.version>
         <hadoop-client.version>3.1.0</hadoop-client.version>
         <protobuf-java.version>3.5.1</protobuf-java.version>
         <zookeeper.version>3.5.4-beta</zookeeper.version>

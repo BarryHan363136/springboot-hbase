@@ -2,7 +2,6 @@ package com.barry.bigdata.service;
 
 import com.barry.bigdata.base.BaseTest;
 import com.barry.bigdata.entity.Staff;
-import com.barry.bigdata.hbase.HbaseTable;
 import com.barry.bigdata.hbase.HconnectionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hadoop.conf.Configuration;
@@ -17,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
-import org.springframework.data.hadoop.hbase.TableCallback;
-
 import java.io.IOException;
 
 /**
@@ -161,20 +158,38 @@ public class StaffServiceTest extends BaseTest {
         conf.set("hbase.zookeeper.port", "2181");
         conf.set("zookeeper.znode.parent", "/hbase");
         conf.set("hbase.master", "192.168.33.128");
-        HBaseConfiguration cfg = new HBaseConfiguration(conf);
-        HTable hTable = new HTable(cfg, "s_staff");
-        Put p = new Put(Bytes.toBytes("0002"));
-        //byte[] family, byte[] qualifier, byte[] value
-        p.addColumn("staff".getBytes(), "content".getBytes(), "content-0002".getBytes());
-        p.addColumn("staff".getBytes(), "avg".getBytes(), "avg-0002".getBytes());
-        //p.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0002"));
-        //p.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0002"));
-        hTable.put(p);
+        Connection connection = ConnectionFactory.createConnection(conf);
+        Table table = connection.getTable(TableName.valueOf("t_staff"));
+        Admin admin = connection.getAdmin();
+
+        Put put = new Put(Bytes.toBytes("0002"));
+        put.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0002"));
+        put.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0002"));
+        table.put(put);
         logger.info("======================>新增数据完成...");
-        // closing HTable
-        hTable.close();
     }
 
+    /**
+     * 新增数据
+     */
+    @Test
+    public void testPutData2() throws IOException {
+        try {
+            String tableName = "t_staff";
+
+            Configuration config = HBaseConfiguration.create();
+            config.set("hbase.zookeeper.quorum", "192.168.33.128");
+            config.set("hbase.zookeeper.port", "2181");
+            HTable table = new HTable(config, tableName);
+            Put put = new Put(Bytes.toBytes("0003"));
+            put.add(Bytes.toBytes("staff"), Bytes.toBytes("content"), Bytes.toBytes("content-0003"));
+            put.add(Bytes.toBytes("staff"), Bytes.toBytes("avg"), Bytes.toBytes("avg-0003"));
+            table.put(put);
+            logger.info("======================>新增数据完成...");
+        } catch (IOException e) {
+            logger.error("testPutData exception {} ", e);
+        }
+    }
 
 }
 
