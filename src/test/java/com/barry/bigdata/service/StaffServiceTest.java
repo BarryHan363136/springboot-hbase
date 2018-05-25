@@ -8,6 +8,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,19 @@ public class StaffServiceTest extends BaseTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private Configuration configuration;
+    private Admin admin;
+
+    @Before
+    public void initConfiguration() throws IOException {
+        this.configuration = HBaseConfiguration.create();
+        this.configuration.set(HConstants.ZOOKEEPER_QUORUM, "192.168.33.128");
+        this.configuration.set(HConstants.ZOOKEEPER_CLIENT_PORT, "2181");
+        //this.admin = new HBaseAdmin(configuration);
+        Connection connection = ConnectionFactory.createConnection(this.configuration);
+        this.admin = connection.getAdmin();
+    }
 
     @Test
     public void testSerializableStaff() throws Exception {
@@ -301,8 +316,11 @@ public class StaffServiceTest extends BaseTest {
             config.set("hbase.zookeeper.port", "2181");
             hTable = new HTable(config, "t_staff");
             Delete delete = new Delete(Bytes.toBytes("0007"));
+            //delete.deleteColumn(Bytes.toBytes("staff"), Bytes.toBytes("avg"));//删除列族中的avg列
+            //delete.deleteFamily(Bytes.toBytes("staff"));//删除列族staff
             logger.info("======================>数据删除完成...");
             hTable.delete(delete);
+
         } catch (IOException e) {
             logger.error("testPutData2 exception {} ", e);
         }finally {
@@ -426,7 +444,7 @@ public class StaffServiceTest extends BaseTest {
             table.put(put);
             logger.info("<============addColumnFamily=====新增列数据完成!!!>");
         } catch (Exception e) {
-            logger.error("createTable error {} ", e);
+            logger.error("addColumnFamily error {} ", e);
         } finally {
             if (table!=null){
                 table.close();
@@ -444,23 +462,98 @@ public class StaffServiceTest extends BaseTest {
     public void dropTable() throws IOException {
         Admin admin = null;
         try {
-            String tableName = "blog";
-            Configuration config = HBaseConfiguration.create();
-            config.set("hbase.zookeeper.quorum", "192.168.33.128");
-            config.set("hbase.zookeeper.port", "2181");
-            Connection connection = ConnectionFactory.createConnection(config);
-            admin = connection.getAdmin();
+            String tableName = "t_student";
+
             //删除之前要将表disable
-            if (!admin.isTableDisabled(TableName.valueOf(tableName))) {
-                admin.disableTable(TableName.valueOf(tableName));
+            if (!this.admin.isTableDisabled(TableName.valueOf(tableName))) {
+                this.admin.disableTable(TableName.valueOf(tableName));
             }
-            admin.deleteTable(TableName.valueOf(tableName));
+            this.admin.deleteTable(TableName.valueOf(tableName));
+            logger.info("<========================================表"+tableName+"删除完成");
         } catch (IOException e) {
             logger.error("dropTable error {} ", e);
+        }
+    }
+
+    /**
+     * 更新表中数据
+     */
+    @Test
+    public void testModifyData() throws IOException {
+        HTable hTable = null;
+        try {
+            hTable = new HTable(this.configuration, "t_student");
+            Put put = new Put(Bytes.toBytes("0001"));
+            put.add(Bytes.toBytes("personal"), Bytes.toBytes("username"), Bytes.toBytes("username-0001-modify"));
+            put.add(Bytes.toBytes("personal"), Bytes.toBytes("names"), Bytes.toBytes("names-0001-modify"));
+            put.add(Bytes.toBytes("personal"), Bytes.toBytes("gender"), Bytes.toBytes("gender-0001-modify"));
+            put.add(Bytes.toBytes("personal"), Bytes.toBytes("age"), Bytes.toBytes("age-0001-modify"));
+            hTable.put(put);
+            logger.info("======================>数据更新完成...");
+        } catch (IOException e) {
+            logger.error("testModifyData error {} ", e);
         }finally {
-            if (admin!=null){
-                admin.close();
+            if (hTable!=null){
+                hTable.close();
             }
+        }
+    }
+
+    /**
+     * 表查询,根据主key来查询
+     */
+    @Test
+    public void testQueryDataByKey() throws IOException {
+        HTable hTable = null;
+        try {
+            hTable = new HTable(this.configuration, "t_student");
+
+            String id = "0001";
+            Get get = new Get(Bytes.toBytes(id));
+            //get.addFamily(Bytes.toBytes("personal"));//指定列族
+            //get.addColumn(Bytes.toBytes("personal"), Bytes.toBytes("age"));//指定列族&列名
+            Result result = hTable.get(get);
+
+            byte [] ageArr = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("age"));
+            byte [] genderArr = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("gender"));
+            byte [] namesArr = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("names"));
+            byte [] usernameArr = result.getValue(Bytes.toBytes("personal"), Bytes.toBytes("username"));
+
+            String age = Bytes.toString(ageArr);
+            String gender = Bytes.toString(genderArr);
+            String names = Bytes.toString(namesArr);
+            String username = Bytes.toString(usernameArr);
+
+            logger.info("======================>t_student表根据id查询返回值,age:"+age+",gender:"+gender+",names:"+names+",username:"+username);
+        } catch (IOException e) {
+            logger.error("testQueryDataByKey {} ", e);
+        }finally {
+            if (hTable!=null){
+                hTable.close();
+            }
+        }
+    }
+
+    /**
+     * 查询出所有的表
+     */
+    @Test
+    public void testQueryTablesList() throws IOException {
+        try {
+            HTableDescriptor[] hTableDescriptors = this.admin.listTables();
+            for (HTableDescriptor hTableDescriptor : hTableDescriptors){
+                String tableName = hTableDescriptor.getNameAsString();
+                logger.info("=====================>tableName:"+tableName);
+            }
+        } catch (IOException e) {
+            logger.error("testQueryTablesList error {} ", e);
+        }
+    }
+
+    @After
+    public void closeResource() throws IOException {
+        if (admin!=null){
+            admin.close();
         }
     }
 
