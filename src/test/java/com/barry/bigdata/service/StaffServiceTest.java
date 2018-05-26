@@ -174,19 +174,6 @@ public class StaffServiceTest extends BaseTest {
     }
 
     /**
-     * hbaseTemplate工具类,执行查询、修改、新增、删除
-     */
-    @Test
-    public void testCreateTable4(){
-        HbaseTemplate hbaseTemplate = new HbaseTemplate();
-        org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", "192.168.33.128");
-        conf.set("hbase.zookeeper.port", "2181");
-        hbaseTemplate.setConfiguration(conf);
-        hbaseTemplate.setAutoFlush(true);
-    }
-
-    /**
      * 新增数据,此种方式不是最好的,尽量使用testPutData2的方式
      */
     @Test
@@ -548,6 +535,16 @@ public class StaffServiceTest extends BaseTest {
         } catch (IOException e) {
             logger.error("testQueryTablesList error {} ", e);
         }
+    }
+
+    /**
+     * hbaseTemplate工具类,执行查询、修改、新增、删除
+     */
+    @Test
+    public void testCreateTable4(){
+        HbaseTemplate hbaseTemplate = new HbaseTemplate();
+        hbaseTemplate.setConfiguration(this.configuration);
+        hbaseTemplate.setAutoFlush(true);
     }
 
     @After
