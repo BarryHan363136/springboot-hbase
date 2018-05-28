@@ -82,7 +82,7 @@ public class HBaseDaoUtil {
      * @Descripton: 根据条件过滤查询
      * @Author: Sorin
      * @param obj
-     * @param param
+     * @param param
      * @Date: 2018/3/26
      */
     public <T> List<T> queryScan(T obj, Map<String, String> param)throws Exception{
@@ -120,8 +120,7 @@ public class HBaseDaoUtil {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("查询失败！");
-            throw new Exception(e);
+            logger.error("查询失败！", e);
         }
         return objs;
     }

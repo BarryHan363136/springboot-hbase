@@ -2,10 +2,13 @@ package com.barry.bigdata.service;
 
 import com.barry.bigdata.base.BaseTest;
 import com.barry.bigdata.entity.Student;
+import com.barry.bigdata.hbase.HBaseDaoUtil;
 import com.barry.bigdata.model.HBaseFamilyColumn;
 import com.barry.bigdata.model.HQuery;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -25,7 +28,9 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.data.hadoop.hbase.TableCallback;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: hants
@@ -45,6 +50,9 @@ public class HbaseTemplateTest extends BaseTest {
     private Configuration configuration;
 
     private HbaseTemplate hbaseTemplate;
+
+    @Autowired
+    private HBaseDaoUtil hBaseDaoUtil;
 
     @Before
     public void initConfiguration() throws IOException {
@@ -149,27 +157,71 @@ public class HbaseTemplateTest extends BaseTest {
     }
 
     @Test
-    public void testGetResultByKey(){
-        Student student = new Student();
+    public void testGetResultByKey() throws Exception {
         HQuery hQuery = this.initGetResultByKeyModel();
+        Map<String, String> map = new HashMap<String, String>();
+        Student student = new Student();
         this.hbaseTemplate.get(hQuery.getTable(), hQuery.getRow(), new RowMapper<Object>() {
-
             @Override
             public Object mapRow(Result result, int i) throws Exception {
-                logger.info("========testGetResultByKey result.listCells()============>"+objectMapper.writeValueAsString(result.listCells()));
-                logger.info("========testGetResultByKey result.getRow()============>"+objectMapper.writeValueAsString(result.getRow()));
-                logger.info("========testGetResultByKey Bytes.toString(result.getRow()============>"+Bytes.toString(result.getRow()));
                 List<Cell> ceList = result.listCells();
                 if (ceList==null || ceList.isEmpty()){
                     logger.info("====================>根据row-key:0001未查询到结果");
                 }
-//                for (Cell cell : ceList){
-//                }
-                return null;
+                for (Cell cell : ceList){
+                    map.put(Bytes.toString(cell.getQualifierArray(),
+                            cell.getQualifierOffset(),
+                            cell.getQualifierLength()), Bytes.toString(cell.getValueArray(),
+                            cell.getValueOffset(),
+                            cell.getValueLength()));
+                }
+                logger.info("========testGetResultByKey map============>"+objectMapper.writeValueAsString(map));
+                BeanUtils.populate(student, map);
+                return student;
             }
         });
+        logger.info("========testGetResultByKey student============>"+objectMapper.writeValueAsString(student));
     }
 
+    @Test
+    public void testGetResultByKey2() throws Exception {
+        HQuery hQuery = this.initGetResultByKeyModel();
+        Map<String, String> map = new HashMap<String, String>();
+        Student student = new Student();
+        this.hbaseTemplate.get(hQuery.getTable(), hQuery.getRow(), (result, i) -> {
+            logger.info("======testGetResultByKey2===========>"+objectMapper.writeValueAsString(result));
+            List<Cell> ceList = result.listCells();
+            if (ceList==null || ceList.isEmpty()){
+                logger.info("====================>根据row-key:0001未查询到结果");
+                return null;
+            }
+            for (Cell cell : ceList){
+                map.put(Bytes.toString(cell.getQualifierArray(),
+                        cell.getQualifierOffset(),
+                        cell.getQualifierLength()), Bytes.toString(cell.getValueArray(),
+                        cell.getValueOffset(),
+                        cell.getValueLength()));
+            }
+            logger.info("========testGetResultByKey2 map============>"+objectMapper.writeValueAsString(map));
+            BeanUtils.populate(student, map);
+            return student;
+        });
+        logger.info("========testGetResultByKey2 student============>"+objectMapper.writeValueAsString(student));
+    }
+
+    @Test
+    public void testGetResultByKey3() throws Exception {
+        List<Student> studentList = hBaseDaoUtil.get(new Student(), "0001");
+        if (studentList==null || studentList.isEmpty()){
+            logger.warn("==============================>查询不到数据");
+        }
+        logger.info("========testGetResultByKey2============>"+objectMapper.writeValueAsString(studentList));
+        Student student = studentList.get(0);
+        logger.info("==============================>getAddress:"+student.getAddress());
+        logger.info("==============================>getTelphone:"+student.getTelphone());
+        logger.info("==============================>getFather:"+student.getFather());
+        logger.info("==============================>getMonther:"+student.getMonther());
+    }
 
 }
 
