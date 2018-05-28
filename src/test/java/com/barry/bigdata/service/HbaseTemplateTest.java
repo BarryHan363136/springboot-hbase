@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -221,6 +222,122 @@ public class HbaseTemplateTest extends BaseTest {
         logger.info("==============================>getTelphone:"+student.getTelphone());
         logger.info("==============================>getFather:"+student.getFather());
         logger.info("==============================>getMonther:"+student.getMonther());
+    }
+
+    /**
+     * 通过表名 key 和 列族 和列 获取一个数据
+     *
+     * @param tableName
+     * @param rowName
+     * @param familyName
+     * @param qualifier
+     * @return
+     */
+    private HQuery initGetColumnModel(){
+        HQuery hQuery = new HQuery();
+        hQuery.setTable("t_student");
+        hQuery.setRow("0001");
+        hQuery.setFamily("family");
+        hQuery.setQualifier("telphone");
+        return hQuery;
+    }
+
+    @Test
+    public void getColumn() {
+        HQuery query = this.initGetColumnModel();
+        String qualifierValue = "";
+        if(StringUtils.isBlank(query.getTable()) || StringUtils.isBlank(query.getRow())
+                || StringUtils.isBlank(query.getFamily()) || StringUtils.isBlank(query.getQualifier())){
+            return;
+        }
+        qualifierValue = this.hbaseTemplate.get(query.getTable(), query.getRow(), query.getFamily(), query.getQualifier(), new RowMapper<String>() {
+            public String mapRow(Result result, int rowNum) {
+                List<Cell> ceList = result.listCells();
+                String res = "";
+                if (ceList != null && ceList.size() > 0) {
+                    for (Cell cell : ceList) {
+                        res = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                    }
+                }
+                return res;
+            }
+        });
+        logger.info("============getColumn=========>"+qualifierValue);
+    }
+
+    /**
+     * 通过表名，开始行键和结束行键获取数据
+     *
+     * @param HQuery
+     * @return
+     */
+//    public <T> List<T> find() {
+//        HQuery query = new HQuery();
+//        //如果未设置scan,设置scan
+//        if (query.getScan() == null) {
+//            //起止搜索
+//            if(StringUtils.isNotBlank(query.getStartRow()) && StringUtils.isNotBlank(query.getStopRow())){
+//                query.setSearchLimit(query.getStartRow(), query.getStopRow());
+//            }
+//            //主要配合pageFilter，指定起始点
+//            if(StringUtils.isNotBlank(query.getStartRow())){
+//                query.setScanStartRow(query.getStartRow());
+//            }
+//            //列匹配搜索
+//            if(StringUtils.isNotBlank(query.getFamily()) &&StringUtils.isNotBlank(query.getQualifier())
+//                    &&StringUtils.isNotBlank(query.getQualifierValue())){
+//                query.setSearchEqualFilter(query.getFamily(),query.getQualifier(),query.getQualifierValue());
+//            }
+//            //分页搜索
+//            if(query.getPageFilter()!=null){
+//                query.setFilters(query.getPageFilter());
+//            }
+//            if(query.getScan()==null){
+//                query.setScan(new Scan());
+//            }
+//        }
+//        //设置缓存
+//        query.getScan().setCacheBlocks(false);
+//        query.getScan().setCaching(2000);
+//        return htemplate.find(query.getTable(), query.getScan(), new RowMapper<T>() {
+//            @Override
+//            public T mapRow(Result result, int rowNum) throws Exception {
+//                List<Cell> ceList = result.listCells();
+//                JSONObject obj = new JSONObject();
+//                T item =c.newInstance();
+//                if (ceList != null && ceList.size() > 0) {
+//                    for (Cell cell : ceList) {
+//                        // String row = Bytes.toString(cell.getRowArray(),
+//                        // cell.getRowOffset(), cell.getRowLength());
+//                        // String family = Bytes.toString(cell.getFamilyArray(),
+//                        // cell.getFamilyOffset(),
+//                        // cell.getFamilyLength());
+//
+//                        String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(),
+//                                cell.getValueLength());
+//
+//                        String quali = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(),
+//                                cell.getQualifierLength());
+//                        if(value.startsWith("[")){
+//                            obj.put(quali, JSONArray.parseArray(value));
+//                        }else{
+//                            obj.put(quali, value);
+//                        }
+//                    }
+//                }
+//                item =JSON.parseObject(obj.toJSONString(), c);
+//                return item;
+//            }
+//
+//        });
+//    }
+
+    public void delete(){
+        HQuery query = new HQuery();
+        query.setTable("t_student");
+        query.setRow("0001");
+        query.setFamily("family");
+        this.hbaseTemplate.delete(query.getTable(), query.getRow(), query.getFamily());
     }
 
 }
